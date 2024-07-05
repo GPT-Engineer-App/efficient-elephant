@@ -9,17 +9,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { CircleUser, Menu, Package2 } from "lucide-react";
+import { CircleUser, Menu, Package2, Plus } from "lucide-react";
+import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { navItems } from "../App";
 
 const Layout = () => {
+  const [projects, setProjects] = useState([
+    { id: 1, name: "Project 1" },
+    { id: 2, name: "Project 2" },
+  ]);
+
+  const handleAddProject = () => {
+    const newProject = { id: Date.now(), name: `Project ${projects.length + 1}` };
+    setProjects([...projects, newProject]);
+  };
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <Sidebar />
+      <Sidebar projects={projects} onAddProject={handleAddProject} />
       <div className="flex flex-col">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-          <MobileSidebar />
+          <MobileSidebar projects={projects} onAddProject={handleAddProject} />
           <div className="w-full flex-1">{/* Add nav bar content here! */}</div>
           <UserDropdown />
         </header>
@@ -31,13 +41,13 @@ const Layout = () => {
   );
 };
 
-const Sidebar = () => (
+const Sidebar = ({ projects, onAddProject }) => (
   <div className="hidden border-r bg-muted/40 md:block">
     <div className="flex h-full max-h-screen flex-col gap-2">
       <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
         <NavLink to="/" className="flex items-center gap-2 font-semibold">
           <Package2 className="h-6 w-6" />
-          <span>Acme Inc</span>
+          <span>TodoMaster</span>
         </NavLink>
       </div>
       <div className="flex-1">
@@ -49,12 +59,29 @@ const Sidebar = () => (
             </SidebarNavLink>
           ))}
         </nav>
+        <div className="mt-4">
+          <h2 className="text-lg font-semibold mb-2">Projects</h2>
+          {projects.map((project) => (
+            <SidebarNavLink key={project.id} to={`/project/${project.id}`}>
+              {project.name}
+            </SidebarNavLink>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={onAddProject}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Project
+          </Button>
+        </div>
       </div>
     </div>
   </div>
 );
 
-const MobileSidebar = () => (
+const MobileSidebar = ({ projects, onAddProject }) => (
   <Sheet>
     <SheetTrigger asChild>
       <Button variant="outline" size="icon" className="shrink-0 md:hidden">
@@ -69,7 +96,7 @@ const MobileSidebar = () => (
           className="flex items-center gap-2 text-lg font-semibold mb-4"
         >
           <Package2 className="h-6 w-6" />
-          <span className="sr-only">Acme Inc</span>
+          <span className="sr-only">TodoMaster</span>
         </NavLink>
         {navItems.map((item) => (
           <SidebarNavLink key={item.to} to={item.to}>
@@ -77,6 +104,23 @@ const MobileSidebar = () => (
           </SidebarNavLink>
         ))}
       </nav>
+      <div className="mt-4">
+        <h2 className="text-lg font-semibold mb-2">Projects</h2>
+        {projects.map((project) => (
+          <SidebarNavLink key={project.id} to={`/project/${project.id}`}>
+            {project.name}
+          </SidebarNavLink>
+        ))}
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-2"
+          onClick={onAddProject}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Project
+        </Button>
+      </div>
     </SheetContent>
   </Sheet>
 );
